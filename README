@@ -1,11 +1,52 @@
 This project uses python 3.6.6
 
-0. `pip install requirements.txt`
-1. `./manage.py migrate`
-2. `./manage.py createsuperuser`
-3. `./manage.py runserver`
-4. `$ curl -X POST -d "username=admin&password=password123" http://localhost:8000/api-token-auth/`
-5. `$ curl -H "Authorization: JWT <your_token>" http://localhost:8000/protected-url/`
+
+* `pip install requirements.txt`
+* `./manage.py migrate`
+* `./manage.py loaddata form_builder/fixtures/auth_data.json`
+* `./manage.py loaddata form_builder/fixtures/initial_data.json`
+* `./manage.py createsuperuser`
+* `./manage.py runserver`
+* `$ curl -X POST -d "username=admin&password=password123" http://localhost:8000/api-token-auth/`
+* `$ curl -H "Authorization: JWT <your_token>" http://localhost:8000/protected-url/`
+
+View Form
+```
+curl -X GET \
+  http://127.0.0.1:8000/forms/1/ \
+  -H 'authorization: Basic bWFub2o6MQ==' \
+  -H 'content-type: application/json'
+```
+
+View Attempt
+```
+curl -X GET \
+  http://127.0.0.1:8000/attempts/1/ \
+  -H 'authorization: Basic bWFub2oyOjE=' \
+  -H 'content-type: application/json'
+```
+
+Respond with Text
+```
+curl -X PATCH \
+  http://127.0.0.1:8000/attempts/1/fields/1/ \
+  -H 'authorization: Basic bWFub2oyOjE=' \
+  -H 'content-type: application/json' \
+  -d '{
+	"text": "Manoj Kumar P"
+}'
+```
+
+Respond with Multiple Options
+```
+curl -X POST \
+  http://127.0.0.1:8000/attempts/1/fields/2/options/ \
+  -H 'authorization: Basic bWFub2oyOjE=' \
+  -H 'content-type: application/json' \
+  -d '{
+	"option": 1
+}'
+```
 
 Workflow
 =======
@@ -19,12 +60,14 @@ Author a Form
 
 Add Fields
 
-1. `POST http://127.0.0.1:8000/forms/:id/fields/`
-2. `GET http://127.0.0.1:8000/forms/:id/fields/`
-3. Add Options for Radio Form-Field `POST http://127.0.0.1:8000/forms/1/fields/5/options/`
+* Create Multiple Choice Field `POST http://127.0.0.1:8000/forms/:id/fields/ -d {"field": "R", "text": "Married?"}`
+* Create Multiple Choice Field `POST http://127.0.0.1:8000/forms/:id/fields/ -d {"field": "T", "text": "Name?"}`
+* `GET http://127.0.0.1:8000/forms/:id/fields/`
+* Add Options for Radio Form-Field `POST http://127.0.0.1:8000/forms/1/fields/5/options/ -d {"value": "Choice 1"}`
 
 Attempt a Form
 
-1. `POST http://127.0.0.1:8000/forms/:id/attempt/`
-2. Text Response `POST http://127.0.0.1:8000/forms/:id/attempt/:id/field/:id/text-response/`
-3. Radio Response `POST http://127.0.0.1:8000/forms/:id/attempt/:id/field/:id/select-option/`
+1. Create Attempt with fields populated `POST http://127.0.0.1:8000/attempts/`
+2. Text Response `PATCH http://127.0.0.1:8000/attempts/:id/fields/:id/ -d {"text": "value"}`
+3. Radio Response `POST http://127.0.0.1:8000/attempts/1/fields/2/options/ -d {"option": 1}`
+4. View Attempt `GET http://127.0.0.1:8000/attempts/:id/`

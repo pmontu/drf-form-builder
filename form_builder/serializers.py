@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from .models import (
 	Form, FormField, FormFieldOption, FormAttempt, FormFieldAttempt,
+	FormFieldOptionAttempt,
 )
 
 
@@ -13,7 +14,7 @@ class FormFieldOptionSerializer(serializers.ModelSerializer):
 
 
 class FormFieldSerializer(serializers.ModelSerializer):
-	options = FormFieldOptionSerializer(many=True, read_only=True)
+	options = FormFieldOptionSerializer(read_only=True, many=True)
 
 	class Meta:
 		model = FormField
@@ -30,8 +31,22 @@ class FormSerializer(serializers.ModelSerializer):
 		read_only_fields = ("user",)
 
 
+class FormFieldOptionAttemptSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = FormFieldOptionAttempt
+		fields = "__all__"
+		read_only_fields = ("field", )
+
+	def create(self, validated_data):
+		obj, created = FormFieldOptionAttempt.objects.get_or_create(
+			**validated_data
+		)
+		return obj
+
+
 class FormFieldAttemptSerializer(serializers.ModelSerializer):
 	field = FormFieldSerializer(read_only=True)
+	options = FormFieldOptionAttemptSerializer(read_only=True, many=True)
 
 	class Meta:
 		model = FormFieldAttempt

@@ -63,12 +63,15 @@ class FormAttempt(models.Model):
             self.fields.create(attempt=self, field=field)
 
 
-class Selection(models.Model):
+class FormFieldOptionAttempt(models.Model):
     field = models.ForeignKey(
         FormFieldAttempt,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name="options",
     )
     option = models.ForeignKey(
         FormFieldOption,
         on_delete=models.CASCADE,
     )
+    class Meta:
+        unique_together = ("field", "option")

@@ -1,14 +1,18 @@
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
+from rest_framework import mixins
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 
 from .models import (
-    Form, FormField, FormFieldOption, FormAttempt, FormFieldAttempt
+    Form, FormField, FormFieldOption, FormAttempt, FormFieldAttempt,
+    FormFieldOptionAttempt,
 )
 from .serializers import (
     FormSerializer, FormFieldSerializer, FormFieldOptionSerializer,
-    FormAttemptSerializer, FormFieldAttemptSerializer
+    FormAttemptSerializer, FormFieldAttemptSerializer,
+    FormFieldOptionAttemptSerializer,
 )
 
 
@@ -73,14 +77,20 @@ class FormAttemptViewSet(ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        return FormAttempt.objects.filter(user=user)
+        return FormAttempt.objects.filter(Q(user=user)|Q(form__user=user))
 
     def perform_create(self, serializer):
         user = self.request.user
         serializer.save(user=user)
 
 
-class FormFieldAttemptViewSet(ModelViewSet):
+class FormFieldAttemptViewSet(
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    mixins.ListModelMixin,
+    GenericViewSet
+):
     serializer_class = FormFieldAttemptSerializer
 
     def get_queryset(self):
@@ -88,10 +98,35 @@ class FormFieldAttemptViewSet(ModelViewSet):
         return FormFieldAttempt.objects.filter(
             attempt__user=user,
             attempt=self.kwargs['attempt_pk'],
-            field__form=self.kwargs['form_pk'],
         )
 
     def perform_create(self, serializer):
-        attempt = get_object_or_404(FormAttempt, pk=self.kwargs['attempt_pk'])
-        serializer.save(user=user, form=form)
+        user = self.request.user
+        attempt = get_object_or_404(
+            FormFieldAttempt,
+            pk=self.kwargs['attempt_pk'],
+            attempt__user=user
+        )
+        serializer.save(attempt=attempt)
 
+
+class FormFieldOptionAttemptViewSet(ModelViewSet):
+    serializer_class = FormFieldOptionAttemptSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return FormFieldOptionAttempt.objects.filter(
+            field__attempt__user=user,
+            field__attempt=self.kwargs['attempt_pk'],
+            field=self.kwargs['field_pk'],
+        )
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        field = get_object_or_404(
+            FormFieldAttempt,
+            pk=self.kwargs['field_pk'],
+            attempt=self.kwargs['attempt_pk'],
+            attempt__user=user,
+        )
+        serializer.save(field=field)
