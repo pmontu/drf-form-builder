@@ -1,0 +1,30 @@
+This project uses python 3.6.6
+
+0. `pip install requirements.txt`
+1. `./manage.py migrate`
+2. `./manage.py createsuperuser`
+3. `./manage.py runserver`
+4. `$ curl -X POST -d "username=admin&password=password123" http://localhost:8000/api-token-auth/`
+5. `$ curl -H "Authorization: JWT <your_token>" http://localhost:8000/protected-url/`
+
+Workflow
+=======
+
+Author a Form
+
+1. Create Form `POST http://127.0.0.1:8000/forms/`
+2. Add Fields,...
+3. Publish Form `POST http://127.0.0.1:8000/forms/:id/publish/`
+4. View Forms Created `GET http://127.0.0.1:8000/forms/`
+
+Add Fields
+
+1. `POST http://127.0.0.1:8000/forms/:id/fields/`
+2. `GET http://127.0.0.1:8000/forms/:id/fields/`
+3. Add Options for Radio Form-Field `POST http://127.0.0.1:8000/forms/1/fields/5/options/`
+
+Attempt a Form
+
+1. `POST http://127.0.0.1:8000/forms/:id/attempt/`
+2. Text Response `POST http://127.0.0.1:8000/forms/:id/attempt/:id/field/:id/text-response/`
+3. Radio Response `POST http://127.0.0.1:8000/forms/:id/attempt/:id/field/:id/select-option/`
