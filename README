@@ -61,13 +61,13 @@ Author a Form
 Add Fields
 
 * Create Multiple Choice Field `POST http://127.0.0.1:8000/forms/:id/fields/ -d {"field": "R", "text": "Married?"}`
-* Create Multiple Choice Field `POST http://127.0.0.1:8000/forms/:id/fields/ -d {"field": "T", "text": "Name?"}`
+* Create Text Field `POST http://127.0.0.1:8000/forms/:id/fields/ -d {"field": "T", "text": "Name?"}`
 * `GET http://127.0.0.1:8000/forms/:id/fields/`
 * Add Options for Radio Form-Field `POST http://127.0.0.1:8000/forms/1/fields/5/options/ -d {"value": "Choice 1"}`
 
 Attempt a Form
 
-1. Create Attempt with fields populated `POST http://127.0.0.1:8000/attempts/`
+1. Create Attempt with fields populated `POST http://127.0.0.1:8000/attempts/ -d {"form": 1}`
 2. Text Response `PATCH http://127.0.0.1:8000/attempts/:id/fields/:id/ -d {"text": "value"}`
 3. Radio Response `POST http://127.0.0.1:8000/attempts/1/fields/2/options/ -d {"option": 1}`
 4. View Attempt `GET http://127.0.0.1:8000/attempts/:id/`
