@@ -4,6 +4,13 @@ from .models import (
 	Form, FormField, FormFieldOption, FormAttempt, FormFieldAttempt,
 	FormFieldOptionAttempt,
 )
+from django.contrib.auth.models import User
+
+
+class UserSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = User
+		exclude = ("password",)
 
 
 class FormFieldOptionSerializer(serializers.ModelSerializer):
@@ -24,6 +31,7 @@ class FormFieldSerializer(serializers.ModelSerializer):
 
 class FormSerializer(serializers.ModelSerializer):
 	fields = FormFieldSerializer(many=True, read_only=True)
+	username = serializers.CharField(source="user.username", read_only=True)
 
 	class Meta:
 		model = Form
@@ -32,6 +40,8 @@ class FormSerializer(serializers.ModelSerializer):
 
 
 class FormFieldOptionAttemptSerializer(serializers.ModelSerializer):
+	value = serializers.CharField(source="option.value", read_only=True)
+
 	class Meta:
 		model = FormFieldOptionAttempt
 		fields = "__all__"
@@ -56,6 +66,8 @@ class FormFieldAttemptSerializer(serializers.ModelSerializer):
 
 class FormAttemptSerializer(serializers.ModelSerializer):
 	fields = FormFieldAttemptSerializer(many=True, read_only=True)
+	form_name = serializers.CharField(source="form.name", read_only=True)
+	username = serializers.CharField(source="user.username", read_only=True)
 
 	class Meta:
 		model = FormAttempt

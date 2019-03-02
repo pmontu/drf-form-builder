@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 class Form(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     is_published = models.BooleanField(default=False)
+    name = models.CharField(max_length=200, unique=True)
 
 
 class FormField(models.Model):
@@ -48,7 +49,7 @@ class FormFieldAttempt(models.Model):
         FormField,
         on_delete=models.CASCADE,
     )
-    text = models.TextField(null=True, blank=True)
+    text = models.TextField(default="", blank=True)
 
 
 class FormAttempt(models.Model):

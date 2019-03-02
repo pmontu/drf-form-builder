@@ -12,20 +12,18 @@ from .models import (
 from .serializers import (
     FormSerializer, FormFieldSerializer, FormFieldOptionSerializer,
     FormAttemptSerializer, FormFieldAttemptSerializer,
-    FormFieldOptionAttemptSerializer,
+    FormFieldOptionAttemptSerializer, UserSerializer,
 )
+from .permissions import FormPermission
 
 
 class FormViewSet(ModelViewSet):
     queryset = Form.objects.all()
     serializer_class = FormSerializer
+    permission_classes = (FormPermission,)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-
-    def get_queryset(self):
-        user = self.request.user
-        return Form.objects.filter(user=user)
 
     @action(detail=True, methods=['post'])
     def publish(self, request, pk):
@@ -47,7 +45,12 @@ class FormFieldViewSet(ModelViewSet):
         )
 
     def perform_create(self, serializer):
-        form = get_object_or_404(Form, pk=self.kwargs['form_pk'])
+        user = self.request.user
+        form = get_object_or_404(
+            Form,
+            pk=self.kwargs['form_pk'],
+            user=user
+        )
         serializer.save(form=form)
 
 
@@ -103,14 +106,20 @@ class FormFieldAttemptViewSet(
     def perform_create(self, serializer):
         user = self.request.user
         attempt = get_object_or_404(
-            FormFieldAttempt,
+            FormAttempt,
             pk=self.kwargs['attempt_pk'],
             attempt__user=user
         )
         serializer.save(attempt=attempt)
 
 
-class FormFieldOptionAttemptViewSet(ModelViewSet):
+class FormFieldOptionAttemptViewSet(
+    mixins.RetrieveModelMixin,
+    mixins.DestroyModelMixin,
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    GenericViewSet
+):
     serializer_class = FormFieldOptionAttemptSerializer
 
     def get_queryset(self):
@@ -130,3 +139,10 @@ class FormFieldOptionAttemptViewSet(ModelViewSet):
             attempt__user=user,
         )
         serializer.save(field=field)
+
+
+def jwt_response_payload_handler(token, user=None, request=None):
+    return {
+        'token': token,
+        'user': UserSerializer(user, context={'request': request}).data
+    }
