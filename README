@@ -3,7 +3,6 @@ This project uses python 3.6.6
 
 * `pip install requirements.txt`
 * `./manage.py migrate`
-* `./manage.py loaddata form_builder/fixtures/auth_data.json`
 * `./manage.py loaddata form_builder/fixtures/initial_data.json`
 * `./manage.py createsuperuser`
 * `./manage.py runserver`

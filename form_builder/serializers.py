@@ -67,6 +67,7 @@ class FormFieldAttemptSerializer(serializers.ModelSerializer):
 class FormAttemptSerializer(serializers.ModelSerializer):
 	fields = FormFieldAttemptSerializer(many=True, read_only=True)
 	form_name = serializers.CharField(source="form.name", read_only=True)
+	form_author = serializers.CharField(source="form.user.username", read_only=True)
 	username = serializers.CharField(source="user.username", read_only=True)
 
 	class Meta:

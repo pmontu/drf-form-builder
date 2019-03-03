@@ -6,6 +6,7 @@ class Form(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     is_published = models.BooleanField(default=False)
     name = models.CharField(max_length=200, unique=True)
+    description = models.TextField()
 
 
 class FormField(models.Model):
