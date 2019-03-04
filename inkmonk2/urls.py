@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include, re_path
+from django.views.generic import RedirectView
 
 from rest_framework_jwt.views import obtain_jwt_token
 
@@ -22,4 +23,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('form_builder.urls')),
     re_path(r'^api-token-auth/', obtain_jwt_token),
+    path('', RedirectView.as_view(url='/static/index.html')),
 ]
